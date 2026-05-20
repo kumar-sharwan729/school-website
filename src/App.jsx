@@ -1,9 +1,28 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
+import { useForm, ValidationError } from '@formspree/react';
 
 export default function SchoolWebsite() {
+
   const [menuOpen, setMenuOpen] = useState(false);
   const [darkMode, setDarkMode] = useState(true);
   const [visitorCount, setVisitorCount] = useState(0);
+
+  const [state, handleSubmit] = useForm("xojbvqzq");
+
+  const formRef = useRef();
+
+  useEffect(() => {
+    if (state.succeeded) {
+      formRef.current?.reset();
+
+      setTimeout(() => {
+        window.scrollTo({
+          top: document.getElementById("admission").offsetTop - 100,
+          behavior: "smooth"
+        });
+      }, 100);
+    }
+  }, [state.succeeded]);
 
   useEffect(() => {
     let count = Number(localStorage.getItem('schoolVisitors') || 0);
@@ -53,11 +72,10 @@ export default function SchoolWebsite() {
 
   return (
     <div
-      className={`${
-        darkMode
-          ? 'bg-black text-white'
-          : 'bg-gray-100 text-black'
-      } min-h-screen overflow-x-hidden transition-all duration-500`}
+      className={`${darkMode
+        ? 'bg-black text-white'
+        : 'bg-gray-100 text-black'
+        } min-h-screen overflow-x-hidden transition-all duration-500`}
     >
       <div className="fixed inset-0 -z-10 bg-gradient-to-br from-black via-violet-950 to-blue-950" />
 
@@ -295,16 +313,128 @@ export default function SchoolWebsite() {
             </div>
           </div>
 
-          <form className="bg-white/5 backdrop-blur-2xl border border-white/10 rounded-[40px] p-8 shadow-2xl space-y-6">
-            <input type="text" placeholder="Student Name" className="w-full p-4 rounded-2xl bg-black/30 border border-white/10 outline-none" />
-            <input type="text" placeholder="Parent Name" className="w-full p-4 rounded-2xl bg-black/30 border border-white/10 outline-none" />
-            <input type="email" placeholder="Email Address" className="w-full p-4 rounded-2xl bg-black/30 border border-white/10 outline-none" />
-            <input type="text" placeholder="Mobile Number" className="w-full p-4 rounded-2xl bg-black/30 border border-white/10 outline-none" />
-            <textarea rows="5" placeholder="Message" className="w-full p-4 rounded-2xl bg-black/30 border border-white/10 outline-none"></textarea>
+          <form
+            onSubmit={handleSubmit}
+            className="bg-white/5 backdrop-blur-2xl border border-white/10 rounded-[40px] p-8 shadow-2xl space-y-6"
+            ref={formRef}
+          >
 
-            <button className="w-full py-4 rounded-2xl bg-gradient-to-r from-violet-500 to-blue-500 text-lg font-bold hover:scale-[1.02] transition-all shadow-2xl">
-              Submit Admission Form
+            {state.succeeded && (
+              <div
+                className="
+      bg-green-500/20
+      border
+      border-green-500
+      text-green-300
+      p-4
+      rounded-2xl
+      text-center
+      font-semibold
+      animate-pulse
+    "
+              >
+                ✅ Admission Form Submitted Successfully!
+                <br />
+                We will contact you shortly.
+              </div>
+            )}
+
+            <div>
+              <input
+                type="text"
+                name="studentName"
+                required
+                placeholder="Student Name"
+                className="w-full p-4 rounded-2xl bg-black/30 border border-white/10 outline-none"
+              />
+            </div>
+
+            <div>
+              <input
+                type="text"
+                name="parentName"
+                required
+                placeholder="Parent Name"
+                className="w-full p-4 rounded-2xl bg-black/30 border border-white/10 outline-none"
+              />
+            </div>
+
+            <div>
+              <input
+                type="email"
+                name="email"
+                required
+                placeholder="Email Address"
+                className="w-full p-4 rounded-2xl bg-black/30 border border-white/10 outline-none"
+              />
+
+              <ValidationError
+                prefix="Email"
+                field="email"
+                errors={state.errors}
+              />
+            </div>
+
+            <div>
+              <input
+                type="tel"
+                name="mobile"
+                required
+                placeholder="Mobile Number"
+                className="w-full p-4 rounded-2xl bg-black/30 border border-white/10 outline-none"
+              />
+            </div>
+
+            <div>
+              <input
+                type="text"
+                name="subject"
+                required
+                placeholder="Subject"
+                className="w-full p-4 rounded-2xl bg-black/30 border border-white/10 outline-none"
+              />
+            </div>
+
+            <div>
+              <textarea
+                rows="5"
+                name="message"
+                required
+                placeholder="Write your message"
+                className="w-full p-4 rounded-2xl bg-black/30 border border-white/10 outline-none resize-none"
+              />
+
+              <ValidationError
+                prefix="Message"
+                field="message"
+                errors={state.errors}
+              />
+            </div>
+
+            <button
+              type="submit"
+              disabled={state.submitting}
+              className="
+      w-full
+      py-4
+      rounded-2xl
+      bg-gradient-to-r
+      from-violet-500
+      to-blue-500
+      text-lg
+      font-bold
+      hover:scale-[1.02]
+      transition-all
+      shadow-2xl
+      disabled:opacity-50
+      disabled:cursor-not-allowed
+    "
+            >
+              {state.submitting
+                ? "Submitting..."
+                : "Submit Admission Form"}
             </button>
+
           </form>
         </div>
       </section>
